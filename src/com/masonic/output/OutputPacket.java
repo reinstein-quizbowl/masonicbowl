@@ -41,27 +41,6 @@ public class OutputPacket extends DownloadServlet {
 			"No packets specified to output"
 		);
 		
-		String lclFilename;
-		String lclMimeType;
-		
-		if (lclPackets.size() == 1) {
-			lclFilename = PacketOutputter.makeFilename(lclPackets.iterator().next());
-			lclMimeType = MIME_TYPE_PDF;
-		} else {
-			lclMimeType = MIME_TYPE_ZIP;
-			
-			Set<PacketSet> lclPSes = lclPackets.stream()
-				.map(Packet::getPacketSet)
-				.distinct()
-				.collect(Collectors.toCollection(Fast3Set::new));
-			Validate.notEmpty(lclPSes);
-			if (lclPSes.size() == 1) {
-				lclFilename = Utility.cleanFilename(lclPSes.iterator().next().getShortName()) + ".zip";
-			} else {
-				lclFilename = "masonic-bowl-packets.zip";
-			}
-		}
-		
 		String lclOutputStyle = StringUtils.trimToNull(argRequest.getParameter("output_style"));
 		Function<Packet, PacketOutputter> lclOutputterCreator;
 		switch (lclOutputStyle) {
@@ -95,9 +74,25 @@ public class OutputPacket extends DownloadServlet {
 		}
 		
 		if (lclFiles.size() == 1) {
+			final String lclFilename = PacketOutputter.makeFilename(lclPackets.iterator().next());
+			final String lclMimeType = MIME_TYPE_PDF;
 			final File lclF = lclFiles.get(0);
 			return new Download(lclF, lclMimeType, lclFilename);
 		} else {
+			final String lclMimeType = MIME_TYPE_ZIP;
+			final String lclFilename;
+			
+			Set<PacketSet> lclPSes = lclPackets.stream()
+				.map(Packet::getPacketSet)
+				.distinct()
+				.collect(Collectors.toCollection(Fast3Set::new));
+			Validate.notEmpty(lclPSes);
+			if (lclPSes.size() == 1) {
+				lclFilename = Utility.cleanFilename(lclPSes.iterator().next().getShortName()) + ".zip";
+			} else {
+				lclFilename = "masonic-bowl-packets.zip";
+			}
+			
 			final File lclZipFile = new File(lclFilename);
 			try (FileOutputStream lclFOS = new FileOutputStream(lclZipFile)) {
 				try (ZipOutputStream lclZOS = new ZipOutputStream(lclFOS)) {
