@@ -7,7 +7,7 @@ public final class Menus {
 	
 	public static final Menu PUBLIC = new Menu(
 		"public",
-		"Galton",
+		"Masonic-Writing App",
 		Arrays.asList(
 			new MenuPage("home", "Home", "/")
 		)
